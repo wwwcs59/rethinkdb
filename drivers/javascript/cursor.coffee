@@ -187,11 +187,9 @@ class IterableResult
                     else
                         resolve()
 
-                if @_outstandingRequests > 0
-                    @_closeAsap = true
-                else
-                    @_outstandingRequests += 1
-                    @_conn._endQuery(@_token)
+                @_closeAsap = true
+                @_outstandingRequests += 1
+                @_conn._endQuery(@_token)
         ).nodeify cb
 
     _each: varar(1, 2, (cb, onFinished) ->
