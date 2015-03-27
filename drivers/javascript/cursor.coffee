@@ -180,13 +180,21 @@ class IterableResult
         new Promise( (resolve, reject) =>
             if @_endFlag is true
                 resolve()
-            else
+            else if not @_closeCb?
                 @_closeCb = (err) ->
+                    # Clear all callbacks for outstanding requests
+                    while @_cbQueue.length > 0
+                        @_cbQueue.shift()
+                    # The connection uses _outstandingRequests to see
+                    # if it should remove the token for this
+                    # cursor. This states unambiguously that we don't
+                    # care whatever responses return now.
+                    @_outstandingRequests = 0
                     if (err)
                         reject(err)
                     else
                         resolve()
-
+            else
                 @_closeAsap = true
                 @_outstandingRequests += 1
                 @_conn._endQuery(@_token)
